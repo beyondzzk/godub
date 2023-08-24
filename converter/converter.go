@@ -44,6 +44,7 @@ const (
 
 type Converter struct {
 	w             io.Writer
+	iPcmFormat    string
 	channels      int
 	dstFormat     string
 	bitRate       int
@@ -94,6 +95,11 @@ func (c *Converter) fixFormat(f string) string {
 	} else {
 		return f
 	}
+}
+
+func (c *Converter) WithInputPCMFormat(f string) *Converter {
+	c.iPcmFormat = f
+	return c
 }
 
 func (c *Converter) WithChannels(v int) *Converter {
@@ -198,6 +204,10 @@ func (c *Converter) doConvert() error {
 		return err
 	}
 	defer os.Remove(dstFile.Name())
+
+	if c.iPcmFormat != "" {
+		c.extendCmdArgs("-f", c.iPcmFormat)
+	}
 
 	c.extendCmdArgs("-i", c.srcFilename)
 	c.extendCodecFormatArgs()
