@@ -45,6 +45,7 @@ const (
 type Converter struct {
 	w             io.Writer
 	iPcmFormat    string
+	iSampleRate   int
 	channels      int
 	dstFormat     string
 	bitRate       int
@@ -97,8 +98,9 @@ func (c *Converter) fixFormat(f string) string {
 	}
 }
 
-func (c *Converter) WithInputPCMFormat(f string) *Converter {
+func (c *Converter) WithInputPCMFormat(f string, sampleRate int) *Converter {
 	c.iPcmFormat = f
+	c.iSampleRate = sampleRate
 	return c
 }
 
@@ -207,6 +209,9 @@ func (c *Converter) doConvert() error {
 
 	if c.iPcmFormat != "" {
 		c.extendCmdArgs("-f", c.iPcmFormat)
+		if c.iSampleRate > 0 {
+			c.extendCmdArgs("-ar", fmt.Sprintf("%d", c.iSampleRate))
+		}
 	}
 
 	c.extendCmdArgs("-i", c.srcFilename)
